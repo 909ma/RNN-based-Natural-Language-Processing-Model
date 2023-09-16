@@ -1,14 +1,14 @@
-from tensorflow.keras.layers import Embedding, Dense, LSTM
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.text import tokenizer_from_json
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.layers import Embedding, Dense, LSTM
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
 from string import punctuation
 import tensorflow as tf
-import pickle
 import pandas as pd
 import numpy as np
+import pickle
 
 
 # GPU 사용 가능 여부 확인
@@ -41,23 +41,13 @@ for sentence in Text:
         sequence = encoded[:i+1]
         sequences.append(sequence)
 
-# 정수에 할당된 단어 찾기
-index_to_word = {}
-for key, value in tokenizer.word_index.items():  # 인덱스를 단어로 바꾸기 위해 index_to_word를 생성
-    index_to_word[value] = key
-
-print('빈도수 상위 1번 단어 : {}'.format(index_to_word[1]))
-
 max_len = max(len(l) for l in sequences)
-# max_len = 24 # 너무 길어서 학습이 진행되지 않을 경우 수정
 print('샘플의 최대 길이 : {}'.format(max_len))
-
 
 sequences = pad_sequences(sequences, maxlen=max_len, padding='pre')
 sequences = np.array(sequences)
-# 일부 최신 데이터만 사용: 결과를 보기 위한 시간과 품질 타협하기
-X = sequences[-10000:, :-1]
-y = sequences[-10000:, -1]
+X = sequences[:, :-1]
+y = sequences[:, -1]
 y = to_categorical(y, num_classes=vocab_size)
 
 embedding_dim = 10
